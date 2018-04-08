@@ -1,0 +1,66 @@
+#include<iostream>
+#include<queue>
+#include<list>
+#include<vector>
+using namespace std;
+queue<int>s;
+list<int> adj[1000];
+vector<int>ans;
+int mp[1000 + 10];
+int cishu;
+bool judge = true;
+void bfs2(vector<int> &ans, queue<int> &s)
+{
+	while (!s.empty())
+	{
+		int v = s.front();
+		s.pop();
+		ans.push_back(v);//入数组！
+		for (auto it = adj[v].begin(); it != adj[v].end(); it++)//it是地址！
+		{
+			mp[*it]--;
+			if (!mp[*it])//入度为0入队列！
+				s.push(*it);
+		}
+	}
+	for (int i = 1; i <= cishu; i++)
+		if (mp[i])//正常情况下，入度应为0，若还有入度则证明有环！
+		{
+			cout << "有环！！" << endl;
+			judge = false;
+		}
+}
+void bfs(int v)
+{
+	//先把链接点=0的点放进队列！
+	for (int i = v; i >= 1; i--)
+		if (!mp[i])
+			s.push(i);
+	ans.clear();
+	bfs2(ans, s);
+	if (judge)
+	{
+		for (auto it = ans.begin(); it != ans.end(); it++)
+			cout << *it << endl;
+	}
+}
+
+int main()
+{
+	memset(mp, 0, sizeof(mp));
+	int n,m;
+
+	cin >> cishu;
+	while (cin>>n>>m)
+	{
+		if (m == 0 && n == 0) break;
+		else
+		{
+			mp[m]++;//结点入度+1！
+			adj[n].push_back(m);
+		}
+	}
+	bfs(cishu);
+	system("pause");
+	return 0;
+}
