@@ -1,0 +1,80 @@
+#include<iostream>//dfs构造欧拉回路！
+#include<string>
+using namespace std;
+const int maxn = 10000 + 10;
+int G[maxn][maxn], vis[maxn];//G代表走过的路径，vis代表走过的结点！走过为1，没走过为0;
+int in[maxn], out[maxn];
+int num1, num2;//统计不符合入度=出度的点！   有向有环图规律：除了出发点和结束点，其他点必须满足入度=出度
+int t, n;
+string s;
+void dfs(int u)
+{
+	vis[u] = 1;//标记为已经出现-.-
+	for (int i =0; i <26; i++)//对应二十六个字母-.-
+		if (G[u][i] && !vis[i])//存在有向边并且结点没有被访问过！
+			dfs(i);
+}
+int main()
+{
+	cin >> t;
+	while (t--)
+	{
+		cin >> n;
+		memset(vis,-1, sizeof(vis));//全部标记为已经访问！
+		memset(G, 0, sizeof(G));
+		memset(in, 0, sizeof(in));
+		memset(out,0, sizeof(out));
+		ios_base::sync_with_stdio(false);
+		while (n--)//输入，统计入度和出度以及边！
+		{
+			std::cin >> s;
+			int y = s[0] - 'a';
+			int yy = s[s.length() - 1] - 'a';
+			++G[y][yy];
+			++in[yy];
+			++out[y];
+			vis[y] = vis[yy] = 0;//标记为未经过！
+		}
+		bool flag = true;//记录是否满足条件！
+		int p = 0;
+		for (int i = 0; i < 26;i++)
+			if (in[i] != out[i])
+			{
+				if (in[i] == out[i] + 1)
+					num2++;//终点（可能）
+				else if (out[i] == in[i] + 1)
+				{
+					num1++;
+					p = i;//记录起点！
+				}
+				else
+					flag = false;
+			}
+		if (num1 == 0 && num2 == 0)//环图
+		{
+			cout << "成功！" << endl;
+			continue;
+		}
+		if (num1 > 1 || num2 > 1)
+			flag = false;
+		if (flag)
+		{
+			bool flag2 = true;
+			//dfs时要从起点出发！
+			dfs(p);
+			for (int i = 0; i < 26; i++)
+			{
+				if (!vis[i])//还有没有经过的结点！
+					flag2 = false;
+			}
+			if (flag2)
+				cout << "成功!" << endl;
+			else
+				cout << "失败！" << endl;
+		}
+		else
+			cout << "失败！" << endl;
+	}
+	system("pause");
+	return 0;
+}
