@@ -1,0 +1,56 @@
+#include<iostream>
+using namespace std;
+const int maxn = 200 + 10;
+char tree[maxn][maxn];
+int t;
+void dfs(int u,int i)//行数！ 记得是u+2不是u+1 -.-
+{
+	for (int j = i; j < maxn; j++)
+	{
+		if (tree[u][j] == '#') break;
+		else if (isalpha(tree[u][j]))
+		{
+			if (tree[u + 2][j] != '|')
+			{
+				cout << tree[u][j] << "()";
+				break;
+			}
+			else
+			{
+				cout << tree[u][j] << "(";
+				int m = j;//找左边界！
+				while (m >= 1 && tree[u + 4][m - 1] != ' ')
+					m--;
+				dfs(u + 4, m);
+				cout << ")";
+				break;
+			}
+		}
+		else if (tree[u][j] == '-')
+		{
+			if (isalpha(tree[u + 2][j]))
+				dfs(u + 2, j);
+			if (tree[u][j + 1] == ' ')
+				break;
+		}
+	}
+}
+int main()
+{
+	cin >> t;
+	cin.ignore();
+	while (t--)
+	{
+		memset(tree, 0, sizeof(tree));
+		for (int i = 1;; i++)
+		{
+			cin.getline(tree[i], maxn);
+			if (tree[i][0] == '#') break;
+		}//二维字符串数组存储较为方便!
+		cout << "(";
+		dfs(1, 0);
+		cout << ")"<<endl;
+	}
+	system("pause");
+	return 0;
+}
