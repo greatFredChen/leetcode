@@ -1,0 +1,109 @@
+#include <iostream>
+#include <cstdio>
+#include <string>
+#include <cstring>
+#include <algorithm>
+#include <vector>
+#include <queue>
+#define maxn 100000+5
+using namespace std;
+vector<int> g[maxn];//图的连通
+vector<int> c[maxn];//图的颜色
+int n, m, vis[maxn], d[maxn], ans[maxn];//d保存距离，ans保存最小颜色
+void init() {//初始化
+	int x, y;
+	int temp;
+	memset(vis, 0, sizeof(vis));
+	memset(d, 0, sizeof(d));
+	memset(ans, 0, sizeof(ans));
+	for (int i = 0; i <= n; i++)g[i].clear();
+	for (int i = 0; i <= n; i++)c[i].clear();
+	for (int i = 0; i<m; i++) {
+		cin >> x >> y;
+		g[x].push_back(y);
+		g[y].push_back(x);
+		cin >> temp;
+		c[x].push_back(temp);
+		c[y].push_back(temp);
+	}
+}
+void bfs1(int n)//进行距离的遍历，完成d数组。
+{
+	memset(d, -1, sizeof(d));
+	queue<int> q;
+	d[n] = 0;
+	q.push(n);
+	while (!q.empty())
+	{
+		int u = q.front(); q.pop();
+		int sz = g[u].size();
+		for (int v = 0; v<sz; v++)
+		{
+			int vv = g[u][v];
+			if (vv == 1)
+			{
+				d[1] = d[u] + 1;
+				return;
+			}
+			if (d[vv] == -1)
+			{
+				d[vv] = d[u] + 1;
+				q.push(vv);
+			}
+		}
+	}
+	return;
+}
+void bfs2()//对颜色进行排序，并保存颜色
+{
+	memset(vis, 0, sizeof(vis));
+	queue<int> q;
+	q.push(1);
+	while (!q.empty())
+	{
+		int u = q.front(); q.pop();
+		if (d[u] == 0) return;
+		int sz = g[u].size();
+		int mm = -1;
+		for (int i = 0; i<sz; i++)//找到最小的颜色  
+		{
+			int vv = g[u][i];
+			if (d[vv] == d[u] - 1)
+			{
+				if (mm == -1)
+					mm = c[u][i];
+				else
+					mm = min(mm, c[u][i]);
+			}
+		}
+		int t = d[1] - d[u];
+		if (ans[t] == 0) ans[t] = mm;
+		else
+			ans[t] = min(mm, ans[t]);
+		for (int v = 0; v<sz; v++)  //将同时满足条件的节点加入队列，并同时进行bfs。
+		{
+			int vv = g[u][v];
+			if (vis[vv] == 0 && d[vv] == d[u] - 1 && c[u][v] == mm)
+			{
+				q.push(vv);
+				vis[vv] = 1;
+			}
+		}//通过额外的数组保存最小的颜色来筛选出不符合的同等条件后序遍历结果。若输出节点则还需进行标识并在此回返。
+	}
+	return;
+}
+int main()
+{
+	while (cin >> n >> m) {
+		init();
+		bfs1(n);
+		bfs2();
+		printf("%d\n", d[1]);
+		for (int i = 0; i<d[1]; i++)
+		{
+			if (i) printf(" ");
+			printf("%d", ans[i]);
+		}
+		printf("\n");
+	}
+}
