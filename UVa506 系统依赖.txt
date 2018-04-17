@@ -1,0 +1,135 @@
+#include<iostream>
+#include<map>//把组件转换成数字！
+#include<string>//模拟题！
+#include<vector>
+#include<sstream>
+using namespace std;
+const int maxn = 100000 + 10;
+vector<int>edge[maxn];//edge[a].pushback(b)表示b依赖a
+vector<int>edge1[maxn];//edge[a].pushback(b)表示a依赖b
+int already_ins[maxn];//表示安装/未安装状态！
+map<string, int>node;//对结点打表,把string转换成int!没有出现过的结点默认为0！！
+//一一对应打表
+map<int, string>mp;
+int k = 0;
+void install(string software1,int &k)
+{
+	int a;
+	if (!node[software1])
+	{
+		node[software1] = ++k;//标记新出现得software
+		mp[k] = software1;
+		cout << "   Installing " << software1 << endl;
+		already_ins[node[software1]] = 1;
+	}
+	else if (!already_ins[a = node[software1]] && edge1[a].empty())//没有依赖组件！
+	{
+		already_ins[a] = 1;
+		cout << "   Installing " << software1 << endl;
+	}
+	else if (!already_ins[a = node[software1]] && !edge1[a].empty())//没有被安装且有依赖组件！
+	{
+		int len = edge1[a].size(); int y;
+		for (int i = 0; i < len; i++)
+			if (!already_ins[y = edge1[a][i]])//没有安装！
+			{//安装完子组件之后再安装主组件！不需要捆绑安装！
+				cout << "   Installing " << mp[y] << endl;
+				already_ins[y] = 1;//安装！
+			}
+		cout << "   Installing " << software1 << endl;
+		already_ins[a] = 1;//标记为已安装!
+	}
+	else //如果已经被安装！
+		cout <<"   "<< software1 << " is already installed." << endl;
+}
+void remove(string software)
+{
+	int a = node[software];
+	if (a == 0 || already_ins[a] == 0)
+		cout << "   " << software << " is not installed." << endl;
+	else if (already_ins[a] && !edge[a].empty())//已经安装且拥有被依赖组件!!
+		cout << "   " << software << " is still needed." << endl;
+	else if (already_ins[a] && edge[a].empty() && edge1[a].empty())//已经安装，没有被依赖组件，也没有依赖组件!
+	{
+		cout << "   Removing " << software << endl;
+		already_ins[a] = 0;//标记为未安装！
+	}
+	else if (already_ins[a] && !edge1[a].empty())//有依赖组件！
+	{
+		int len = edge1[a].size(); int y;
+		cout << "   Removing " << software << endl;
+		already_ins[a] = 0;//该组件卸载完毕
+		//接下来开始更新被依赖组件！
+		for (int i = 0; i < len; i++)
+		{
+			vector<int>::iterator iter = find(edge[edge1[a][i]].begin(), edge[y = edge1[a][i]].end(), a);
+			if (iter != edge[edge1[a][i]].end())edge[edge1[a][i]].erase(iter);
+		}//删除被依赖组件！
+		for (int i = 0; i < len; i++)
+			if (edge[y = edge1[a][i]].empty())//如果没有被依赖！
+			{//开始删除！
+				cout << "   Removing " << mp[y] << endl;//卸载！
+				already_ins[y] = 0;//卸载完成！等于没有安装！！
+			}
+	}
+}
+int main()
+{
+	ios::sync_with_stdio(false);
+	string ins, cmd;//指令
+	memset(already_ins, 0, sizeof(already_ins));//全部默认为没有安装！
+	while (1)
+	{
+		getline(cin, ins);//输入指令！
+		//采用string流来进行一行字符串的读取！
+		cout << ins << endl;//先输出原指令！
+		stringstream ss(ins);//ins流！
+		ss >> cmd;
+		if (cmd[0] == 'E') break;
+		else if (cmd[0] == 'D')
+		{
+			string item1, item2;//item1表示依赖主组件，item2为全体依赖副组件！
+			ss >> item1;//主组件！
+			if (!node[item1]) {
+				node[item1] = ++k;
+				mp[k] = item1;
+			}
+			while (ss >> item2)
+			{
+				if (!node[item2]) {
+					node[item2] = ++k;
+					mp[k] = item2;
+				}
+				edge[node[item2]].push_back(node[item1]);//将被依赖组件放进去！
+				edge1[node[item1]].push_back(node[item2]);//依赖组件
+			}
+		}
+		else if (cmd[0] == 'L')//列出所有已经安装的软件！
+		{
+			int listed[maxn];
+			memset(listed, 0, sizeof(listed));
+			//把所有已安装软件列出！
+			for (int i = 1; i <= k; i++)
+				if (!listed[i] && already_ins[i])
+				{
+					cout << "   " << mp[i] << endl;
+					listed[i] = 1;
+				}
+		}
+		else if (cmd[0] == 'I')
+		{
+			//分两种情况?
+			string software;
+			ss >> software;
+			install(software, k);
+		}
+		else if (cmd[0] == 'R')//删除！
+		{
+			string software;
+			ss >> software;
+			remove(software);
+		}
+	}
+	system("pause");
+	return 0;
+}
