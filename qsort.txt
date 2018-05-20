@@ -1,0 +1,33 @@
+#include<iostream>
+using namespace std;
+int ans[] = { 100,78,90,45,1000,47,89,15,0};
+void quicksort(int sta, int end)//更简洁高效的qsort
+{
+	if (sta >= end)//说明已经分解到最小的集合了，可以返回！！
+		return;
+	int first = sta, last = end, k = ans[sta];
+	while (first < last)
+	{
+		while (first<last&&ans[last]>k)
+			last--;
+		ans[first] = ans[last];
+		while (first < last&&ans[first] < k)
+			first++;
+		ans[last] = ans[first];//不断替换！
+	}
+	//i==j时进行替换！实现k的归位，可以做到不重不漏
+	ans[first] = k;
+	//对左分区和有分区进行同样的操作！
+	quicksort(ans, sta, first);
+	quicksort(ans, last + 1, end);
+}
+int main()
+{
+	//quicksort!
+	quicksort(0,8);
+	for (int i = 0; i < 9; i++)
+		cout << ans[i] << " ";
+	cout << endl;
+	system("pause");
+	return 0;
+}

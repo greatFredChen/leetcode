@@ -1,0 +1,52 @@
+#include<iostream>
+using namespace std;
+//mergesort！
+void merge(int *sour,int *temp, int sta,int mid, int end)
+{
+	//开始比较！
+	int i = sta, j = mid + 1, k = sta;
+	while (i < mid + 1 && j < end + 1)
+	{
+		if (sour[i] < sour[j])
+		{
+			temp[k++] = sour[i];
+			i++;
+		}
+		else
+		{
+			temp[k++] = sour[j];
+			j++;
+		}
+	}
+	while (i < mid + 1)
+	{
+		temp[k++] = sour[i++];
+	}
+	while (j < end + 1)
+	{
+		temp[k++] = sour[j++];
+	}
+	for (int x = 0; x < k; x++)
+		sour[x] = temp[x];
+}
+void mergesort(int *sour,int *temp, int sta, int end)
+{
+	int mid = (sta + end) / 2;
+	if (sta < end)
+	{
+		mergesort(sour,temp,sta, mid);
+		mergesort(sour, temp,mid + 1, end);
+		merge(sour, temp, sta, mid, end);
+	}
+}
+int main()
+{
+	int s[] = { 100,78,90,45,1000,47,89,15,0,-20 };
+	int b[10];
+	mergesort(s,b, 0, 9);
+	for (int i = 0; i < 10; i++)
+		cout << s[i] << " ";
+	cout << endl;
+	system("pause");
+	return 0;
+}

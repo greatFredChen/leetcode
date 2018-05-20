@@ -1,0 +1,77 @@
+#include<iostream>//bucketsort!  vector版本！
+#include<vector>
+#include<algorithm>
+using namespace std;
+vector<int>bucket[10];//10个桶！
+int s[] = { 50,40,21,80,70,77,22,45 };
+/*void quicksort(vector<int> &ans,int sta,int end)
+{
+	if (sta >= end)return;
+	int i = sta, j = end, k = ans[sta];
+	int kk = sta;
+	while (i != j)
+	{
+		while (i != j&&ans[j] > k)
+			j--;
+		if (i != j)
+		{
+			int temp = ans[kk];
+			ans[kk] = ans[j];
+			ans[j] = temp;
+			kk = j;
+		}
+		while (i != j&&ans[i] < k)
+			i++;
+		if (i != j)
+		{
+			int temp = ans[kk];
+			ans[kk] = ans[i];
+			ans[i] = temp;
+			kk = i;
+		}
+	}
+	//递归！此时i=j
+	quicksort(ans, sta, i - 1);
+	quicksort(ans, j + 1, end);
+}*/
+void quicksort(vector<int> &ans, int sta, int end)//更简洁高效的qsort！
+{
+	if (sta >= end)//说明已经分解到最小的集合了，可以返回！！
+		return;
+	int first = sta, last = end, k = ans[sta];
+	while (first < last)
+	{
+		while (first<last&&ans[last]>k)
+			last--;
+		ans[first] = ans[last];
+		while (first < last&&ans[first] < k)
+			first++;
+		ans[last] = ans[first];//不断替换！
+	}
+	//i==j时进行替换！实现k的归位，可以做到不重不漏
+	ans[first] = k;
+	//对左分区和有分区进行同样的操作！
+	quicksort(ans, sta, first);
+	quicksort(ans, last + 1, end);
+}
+int main()
+{
+	//10个桶！
+	for (int i = 0; i < 8; i++)
+		bucket[s[i] / 10].push_back(s[i]);
+	for (int i = 0; i <= 9; i++)//0-9
+	{
+		int len = bucket[i].size();
+		if (len > 1)
+			quicksort(bucket[i], 0, len - 1);
+	}
+	for (int i = 0; i <= 9; i++)
+	{
+		int len = bucket[i].size();
+		if (!bucket[i].empty())
+			for (int j = 0; j < len; j++)
+				cout << bucket[i][j]<<" ";
+	}
+	system("pause");
+	return 0;
+}
